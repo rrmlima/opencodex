@@ -1,19 +1,22 @@
 import type { KeyboardEvent } from "react";
 
-/**
- * Tab state for the Codex Set page, shaped exactly like Logs/Debug: two exclusive
- * tabpanels whose choice lives in the hash, not in component state alone. That is
- * what makes the tab survive a refresh, a bookmark, and back/forward — and it is
- * the pattern devlog 004 §A3 identifies as the one the ask actually names.
- */
-export type CodexSetTab = "multiauth" | "prompt";
+export type CodexSetTab = "multiauth" | "prompt" | "webquota";
 
 export function readCodexSetTabFromHash(): CodexSetTab {
-  return window.location.hash.replace(/^#\/?/, "") === "codex-set/prompt" ? "prompt" : "multiauth";
+  const hash = window.location.hash.replace(/^#\/?/, "");
+  if (hash === "codex-set/prompt") return "prompt";
+  if (hash === "codex-set/web-quota") return "webquota";
+  return "multiauth";
 }
 
 export function selectCodexSetTab(next: CodexSetTab): void {
-  window.location.hash = next === "prompt" ? "codex-set/prompt" : "codex-set";
+  if (next === "prompt") {
+    window.location.hash = "codex-set/prompt";
+  } else if (next === "webquota") {
+    window.location.hash = "codex-set/web-quota";
+  } else {
+    window.location.hash = "codex-set";
+  }
 }
 
 export function codexSetTabKeyDown(e: KeyboardEvent): void {
@@ -23,8 +26,7 @@ export function codexSetTabKeyDown(e: KeyboardEvent): void {
     document.getElementById("codex-set-tab-multiauth")?.focus();
   } else if (e.key === "ArrowRight" || e.key === "End") {
     e.preventDefault();
-    selectCodexSetTab("prompt");
-    document.getElementById("codex-set-tab-prompt")?.focus();
+    selectCodexSetTab("webquota");
+    document.getElementById("codex-set-tab-webquota")?.focus();
   }
 }
-

@@ -2,26 +2,15 @@ import { useEffect, useState } from "react";
 import { useT } from "../i18n/shared";
 import CodexSetMultiauth from "./codex-set-multiauth";
 import CodexSetPrompt from "./codex-set-prompt";
+import CodexSetWebQuota from "./codex-set-web-quota";
 import { codexSetTabKeyDown, readCodexSetTabFromHash, selectCodexSetTab } from "./codex-set-tab";
 
-/**
- * Codex Set — the page that configures Codex as a whole, not just its accounts.
- *
- * Two exclusive tabpanels shaped like Logs/Debug rather than the scrolling
- * SectionTabs strip: Multi-auth and Prompt are unrelated surfaces, and Multi-auth
- * polls /api/codex-auth/* on a 30s timer that has no business running while the
- * user is editing prompts. Prompt lazy-mounts on first visit and stays mounted
- * afterwards, so hopping between tabs does not refetch either side.
- */
 export default function CodexSet({ apiBase }: { apiBase: string }) {
   const t = useT();
   const [tab, setTab] = useState(readCodexSetTabFromHash);
   const [promptMounted, setPromptMounted] = useState(() => readCodexSetTabFromHash() === "prompt");
-  // Multi-auth lazy-mounts too. It used to mount unconditionally, which meant a
-  // direct visit to #codex-set/prompt still started its /api/config fetch and 30s
-  // account poll behind a hidden panel - exactly the cost this shell was shaped to
-  // avoid. Both panels now mount on first selection and stay mounted after.
   const [multiauthMounted, setMultiauthMounted] = useState(() => readCodexSetTabFromHash() === "multiauth");
+  const [webquotaMounted, setWebquotaMounted] = useState(() => readCodexSetTabFromHash() === "webquota");
 
   useEffect(() => {
     const onHash = () => setTab(readCodexSetTabFromHash());
@@ -29,14 +18,13 @@ export default function CodexSet({ apiBase }: { apiBase: string }) {
     return () => window.removeEventListener("hashchange", onHash);
   }, []);
 
-  // Latch during render, not in an effect. Setting state from a prop/state change
-  // costs an extra render pass and is what React Compiler flags; the latch is
-  // pure - it only ever goes false -> true - so computing it here is both
-  // cheaper and the same value.
   const showPrompt = promptMounted || tab === "prompt";
   const showMultiauth = multiauthMounted || tab === "multiauth";
+  const showWebquota = webquotaMounted || tab === "webquota";
+
   if (showPrompt !== promptMounted) setPromptMounted(true);
   if (showMultiauth !== multiauthMounted) setMultiauthMounted(true);
+  if (showWebquota !== webquotaMounted) setWebquotaMounted(true);
 
   return (
     <>
@@ -67,6 +55,19 @@ export default function CodexSet({ apiBase }: { apiBase: string }) {
         >
           {t("codexSet.tab.prompt")}
         </button>
+        <button
+          type="button"
+          role="tab"
+          id="codex-set-tab-webquota"
+          aria-selected={tab === "webquota"}
+          aria-controls="codex-set-panel-webquota"
+          tabIndex={tab === "webquota" ? 0 : -1}
+          className={`page-tab${tab === "webquota" ? " page-tab--active" : ""}`}
+          onClick={() => selectCodexSetTab("webquota")}
+          onKeyDown={codexSetTabKeyDown}
+        >
+          Web Quota
+        </button>
       </div>
 
       {showPrompt && (
@@ -88,6 +89,17 @@ export default function CodexSet({ apiBase }: { apiBase: string }) {
           hidden={tab !== "multiauth"}
         >
           <CodexSetMultiauth apiBase={apiBase} />
+        </div>
+      )}
+
+      {showWebquota && (
+        <div
+          role="tabpanel"
+          id="codex-set-panel-webquota"
+          aria-labelledby="codex-set-tab-webquota"
+          hidden={tab !== "webquota"}
+        >
+          <CodexSetWebQuota apiBase={apiBase} />
         </div>
       )}
     </>
