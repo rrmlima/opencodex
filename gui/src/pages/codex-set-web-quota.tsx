@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useT } from "../i18n/shared";
 
 export interface WebQuotaData {
   model: string;
@@ -11,6 +12,7 @@ export interface WebQuotaData {
 }
 
 export default function CodexSetWebQuota({ apiBase }: { apiBase: string }) {
+  const t = useT();
   const [data, setData] = useState<WebQuotaData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -38,13 +40,13 @@ export default function CodexSetWebQuota({ apiBase }: { apiBase: string }) {
   }, [apiBase]);
 
   if (loading && !data) {
-    return <div className="card" style={{ padding: "20px" }}>Carregando Web Quota...</div>;
+    return <div className="card" style={{ padding: "20px" }}>{t("codexSet.webquota.loading")}</div>;
   }
 
   if (!data) {
     return (
       <div className="card" style={{ padding: "20px" }}>
-        <p>A integração Web Quota não está ativa ou ainda não possui dados observados.</p>
+        <p>{t("codexSet.webquota.empty")}</p>
       </div>
     );
   }
@@ -55,38 +57,38 @@ export default function CodexSetWebQuota({ apiBase }: { apiBase: string }) {
     <div className="card" style={{ padding: "20px", display: "flex", flexDirection: "column", gap: "16px" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div>
-          <h3 style={{ margin: 0 }}>Web Quota Monitor</h3>
+          <h3 style={{ margin: 0 }}>{t("codexSet.webquota.title")}</h3>
           <p style={{ margin: "4px 0 0", color: "var(--muted-foreground)" }}>
-            {data.model} ({data.reasoningEffort} effort)
+            <code>{data.model}</code> <span>({data.reasoningEffort})</span>
           </p>
         </div>
         <span style={{ fontSize: "12px", padding: "4px 8px", borderRadius: "4px", background: "#10b98122", color: "#10b981" }}>
-          Active
+          {t("codexSet.webquota.active")}
         </span>
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "12px" }}>
         <div style={{ padding: "12px", borderRadius: "6px", border: "1px solid var(--border)" }}>
-          <div style={{ fontSize: "12px", color: "var(--muted-foreground)" }}>Uso Observado</div>
+          <div style={{ fontSize: "12px", color: "var(--muted-foreground)" }}>{t("codexSet.webquota.observedUsage")}</div>
           <div style={{ fontSize: "20px", fontWeight: "bold" }}>
             {data.totalUsed} / {data.measuredLimit}
           </div>
         </div>
         <div style={{ padding: "12px", borderRadius: "6px", border: "1px solid var(--border)" }}>
-          <div style={{ fontSize: "12px", color: "var(--muted-foreground)" }}>Janela de Reset</div>
+          <div style={{ fontSize: "12px", color: "var(--muted-foreground)" }}>{t("codexSet.webquota.resetWindow")}</div>
           <div style={{ fontSize: "20px", fontWeight: "bold" }}>
-            {Math.floor(data.remainingSeconds / 60)} min
+            {Math.floor(data.remainingSeconds / 60)} <code>min</code>
           </div>
         </div>
         <div style={{ padding: "12px", borderRadius: "6px", border: "1px solid var(--border)" }}>
-          <div style={{ fontSize: "12px", color: "var(--muted-foreground)" }}>Janela Total</div>
-          <div style={{ fontSize: "20px", fontWeight: "bold" }}>{data.windowHours}h</div>
+          <div style={{ fontSize: "12px", color: "var(--muted-foreground)" }}>{t("codexSet.webquota.totalWindow")}</div>
+          <div style={{ fontSize: "20px", fontWeight: "bold" }}>{data.windowHours}<code>h</code></div>
         </div>
       </div>
 
       <div>
         <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", marginBottom: "4px" }}>
-          <span>Consumo da Janela</span>
+          <span>{t("codexSet.webquota.windowConsumption")}</span>
           <span>{pct}%</span>
         </div>
         <div style={{ height: "8px", borderRadius: "4px", background: "var(--border)", overflow: "hidden" }}>

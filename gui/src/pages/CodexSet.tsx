@@ -66,7 +66,7 @@ export default function CodexSet({ apiBase }: { apiBase: string }) {
           onClick={() => selectCodexSetTab("webquota")}
           onKeyDown={codexSetTabKeyDown}
         >
-          Web Quota
+          {t("codexSet.tab.webquota")}
         </button>
       </div>
 
