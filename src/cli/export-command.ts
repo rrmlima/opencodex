@@ -35,6 +35,7 @@ import {
   buildClientConfigText,
   isExportClientId,
   isModelIdMode,
+  MODEL_ID_MODE_CLIENTS,
   opencodeProxyBaseUrl,
   type ExportClientId,
   type ExportModel,
@@ -146,7 +147,7 @@ function parseClient(args: string[]): ExportClientId {
 function parseModelIdMode(args: string[], client: ExportClientId): ModelIdMode | undefined {
   const option = takeOptionWithSyntax(args, "--model-id-mode");
   if (option === undefined) return undefined;
-  if (client !== "hermes" && client !== "commandcode") {
+  if (!MODEL_ID_MODE_CLIENTS.has(client)) {
     throw new CliUsageError(`--model-id-mode applies only to hermes and commandcode, not ${client}`, USAGE);
   }
   if (!isModelIdMode(option.value)) throw new CliUsageError("--model-id-mode must be routed or alias", USAGE);

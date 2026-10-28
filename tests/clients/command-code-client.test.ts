@@ -312,6 +312,15 @@ describe("Command Code model-key spelling", () => {
     expect(Object.keys(models)).toEqual(["SEK/fast", "seek/other-x"]);
     expect(models["SEK/fast"]?.contextWindow).toBe(100);
   });
+  test("a synthetic Fast row keeps its routed key without taking the base alias", () => {
+    const document = buildCommandCodeClientConfig({
+      ...context(),
+      models: [{ namespaced: "seek/model-x", provider: "seek", id: "model-x", fastRowAvailable: true }],
+      modelIdMode: "alias", qualifiedAliasFor: () => "SEK/quick",
+    }) as CommandCodeGeneratedConfig;
+    expect(Object.keys(document.provider[OPENCODE_PROVIDER_ID]!.models).sort())
+      .toEqual(["SEK/quick", "seek/model-x--fast"]);
+  });
   test("an alias that collides with another model's routed key falls back to routed", () => {
     const alias = buildCommandCodeClientConfig({
       ...context(),

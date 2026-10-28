@@ -1,3 +1,4 @@
+import { isModelIdMode, type ModelIdMode } from "../clients/config-export/model-id-mode";
 /** Input shared by integration preview and journal commands; no writer imports. */
 import { CliUsageError, takeOptionWithSyntax } from "./runtime-api";
 
@@ -35,10 +36,10 @@ export function integrationFingerprint(args: string[]): string | undefined {
   return value;
 }
 
-export function integrationModelIdMode(args: string[]): "routed" | "alias" | undefined {
+export function integrationModelIdMode(args: string[]): ModelIdMode | undefined {
   const value = integrationOption(args, "--model-id-mode");
   if (value === undefined) return undefined;
-  if (value !== "routed" && value !== "alias") throw new CliUsageError("--model-id-mode must be routed or alias");
+  if (!isModelIdMode(value)) throw new CliUsageError("--model-id-mode must be routed or alias");
   return value;
 }
 

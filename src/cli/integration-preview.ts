@@ -1,3 +1,4 @@
+import { MODEL_ID_MODE_CLIENTS } from "../clients/config-export/model-id-mode";
 /** Preview and explicitly bound mutations use the existing management authority. */
 import type { IntegrationMutationPlan, IntegrationPlanOperation } from "../integrations/mutation-plan";
 import type { IntegrationClientId } from "../integrations/registry";
@@ -64,7 +65,7 @@ function parseIntent(argv: string[]): Intent {
   if (client === "aside" && profile === undefined) throw new CliUsageError("A preview or bound operation requires one Aside --profile", USAGE);
   if (defaults !== undefined && (client !== "droid" || !["apply", "overwrite"].includes(operation))) throw new CliUsageError("Reasoning defaults apply only to Droid apply or overwrite", USAGE);
   const modelIdModeOperation = action === "enable" || action === "preview" ? operation : undefined;
-  if (modelIdMode !== undefined && ((client !== "hermes" && client !== "commandcode") || (modelIdModeOperation !== "apply" && modelIdModeOperation !== "overwrite"))) {
+  if (modelIdMode !== undefined && (!MODEL_ID_MODE_CLIENTS.has(client ?? "") || (modelIdModeOperation !== "apply" && modelIdModeOperation !== "overwrite"))) {
     throw new CliUsageError("--model-id-mode applies only to Hermes and Command Code apply, overwrite or enable", USAGE);
   }
   let path: string;

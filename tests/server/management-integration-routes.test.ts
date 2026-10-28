@@ -12,7 +12,7 @@ import { applyIntegration } from "../../src/integrations/writer";
 import type { IntegrationWriterLockSeams } from "../../src/integrations/writer-lock";
 import { handleManagementAPI } from "../../src/server/management-api";
 import * as asideRoutes from "../../src/server/management/aside-profile-routes";
-import { loadExportModels, resetExportSnapshotForTests } from "../../src/server/management/model-rows";
+import { loadExportModels, exportSnapshotIdentity, resetExportSnapshotForTests } from "../../src/server/management/model-rows";
 import {
   setIntegrationMutationFlightTestHooks,
   setIntegrationPathTestHooks,
@@ -1640,6 +1640,38 @@ describe("integration previews are reads", () => {
     // The race has to leave the store alone too: a snapshot or journal row written before the
     // guard refused would be invisible to a target-bytes check.
     expect(storeContentWitness(storeRoot)).toBe(storeBefore);
+  });
+
+  test("a replacement roster preview preserves alias mode and can be confirmed", async () => {
+    mkdirSync(INTEGRATION_CLIENTS.commandcode.detectDir(routeEnv, home), { recursive: true });
+    resetExportSnapshotForTests();
+    await loadExportModels(config, []);
+    const preview = await previewApi("/api/client-integrations/preview", {
+      clientId: "commandcode", operation: "apply", modelIdMode: "alias",
+    });
+    expect(preview.status).toBe(200);
+    const plan = await preview.json() as { fingerprint: string };
+    setIntegrationMutationFlightTestHooks({ store, lockSeams: {
+      writeFile: async () => {
+        const prior = exportSnapshotIdentity(config);
+        config.providers.a!.models = ["m1", "replacement-alias-roster"];
+        await loadExportModels(config, [{ id: "replacement-alias-roster", provider: "a" }]);
+        expect(exportSnapshotIdentity(config)).not.toBe(prior);
+      },
+      removeFile: async () => {}, now: () => 0, delay: async () => {}, pid: 12,
+    } });
+    const request = (fingerprint: string) => api("/api/client-integrations/commandcode", {
+      method: "PUT", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ enabled: true, operation: "apply", modelIdMode: "alias", planFingerprint: fingerprint }),
+    });
+    const stale = await request(plan.fingerprint);
+    expect(stale.status).toBe(409);
+    const replacement = await stale.json() as { code: string; plan: { fingerprint: string } };
+    expect(replacement.code).toBe("integration_preview_stale");
+    setIntegrationMutationFlightTestHooks({ store });
+    const confirmed = await request(replacement.plan.fingerprint);
+    expect(confirmed.status).toBe(200);
+    expect(store.readRecords().commandcode?.modelIdMode).toBe("alias");
   });
 
   test("a roster rebuilt unchanged while the lock is taken is not a replacement", async () => {

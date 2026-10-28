@@ -359,7 +359,8 @@ function applyOrRefreshIntegration(
           : `${configPath} cannot be changed safely`);
   }
   if (pre.modelIdModeDrift) {
-    return refuse(clientId, "conflict", "conflict", `${configPath} changed after opencodex wrote it`);
+    return refuse(clientId, "conflict", "conflict",
+      `${configPath} ${before === null ? "is missing" : "changed after opencodex wrote it"}, so the model-id mode was not changed. Disable the ${clientId} integration and enable it again with the new mode, or apply without a mode to keep the saved one.`);
   }
   /*
    * An implicit catalog sync is refresh-only. Keeping this decision inside the

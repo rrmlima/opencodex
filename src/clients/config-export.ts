@@ -74,7 +74,7 @@ export { kiloConfigPath, kiloHomeDir, kiloCandidatePath, KILO_CONFIG_CANDIDATES 
 export type { KiloGeneratedConfig, KiloProviderBlock, KiloModelEntry } from "./config-export/kilo";
 import { droidConfigPath, buildDroidClientConfig, summarizeDroid, buildDroidContribution } from "./config-export/droid";
 import { DEFAULT_MODEL_ID_MODE, modelIdKeysFor } from "./config-export/model-id-mode";
-export { DEFAULT_MODEL_ID_MODE, MODEL_ID_MODES, isModelIdMode, modelIdKeyFor, modelIdKeysFor } from "./config-export/model-id-mode";
+export { DEFAULT_MODEL_ID_MODE, MODEL_ID_MODE_CLIENTS, MODEL_ID_MODES, isModelIdMode, modelIdKeyFor, modelIdKeysFor } from "./config-export/model-id-mode";
 export type { ModelIdMode, QualifiedAliasResolver } from "./config-export/model-id-mode";
 import {
   buildCommandCodeClientConfig,

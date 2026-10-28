@@ -155,6 +155,7 @@ import {
   EXPORT_CLIENTS,
   EXPORT_CLIENT_IDS,
   MODEL_ID_MODES,
+  MODEL_ID_MODE_CLIENTS,
   OPENCODE_PROVIDER_ID,
   buildClientConfigText,
   isExportClientId,
@@ -196,7 +197,6 @@ function summarizeExportedModels(client: ExportClientId, document: unknown): { m
   return EXPORT_CLIENTS[client].summarize(document);
 }
 
-const MODEL_ID_MODE_EXPORT_CLIENTS: ReadonlySet<ExportClientId> = new Set<ExportClientId>(["hermes", "commandcode"]);
 
 export async function handleModelRoutes(ctx: ManagementContext): Promise<Response | null> {
   const { req, url, config, deps, convergeCodexCatalog, syncClaudeAgentDefsBestEffort } = ctx;
@@ -547,8 +547,8 @@ export async function handleModelRoutes(ctx: ManagementContext): Promise<Respons
     if (explicitModelIdMode && !isModelIdMode(modelIdModeParam)) {
       return jsonResponse({ error: `modelIdMode must be one of: ${MODEL_ID_MODES.join(", ")}` }, 400, req, config);
     }
-    if (explicitModelIdMode && !MODEL_ID_MODE_EXPORT_CLIENTS.has(requested)) {
-      return jsonResponse({ error: `modelIdMode is supported only for clients: ${[...MODEL_ID_MODE_EXPORT_CLIENTS].join(", ")}` }, 400, req, config);
+    if (explicitModelIdMode && !MODEL_ID_MODE_CLIENTS.has(requested)) {
+      return jsonResponse({ error: `modelIdMode is supported only for clients: ${[...MODEL_ID_MODE_CLIENTS].join(", ")}` }, 400, req, config);
     }
     const modelIdMode: ModelIdMode | undefined = explicitModelIdMode && isModelIdMode(modelIdModeParam) ? modelIdModeParam : undefined;
     const spec = EXPORT_CLIENTS[requested];

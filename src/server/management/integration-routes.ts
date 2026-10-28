@@ -479,6 +479,7 @@ function stalePlanGuard(
   fingerprint: string,
   capturedIdentity: string | null,
   droidReasoningDefaults?: Record<string, string>,
+  modelIdMode?: ModelIdMode,
 ): {
   revalidate: NonNullable<CoordinatedIntegrationOptions["revalidate"]>;
   response: () => Response | null;
@@ -494,7 +495,7 @@ function stalePlanGuard(
        * without ever swapping the roster this mutation is about to use.
        */
       if (exportSnapshotIdentity(ctx.config) !== capturedIdentity) {
-        const refreshed = await buildIntegrationPreviewInput(clientId, ctx, store, droidReasoningDefaults);
+        const refreshed = await buildIntegrationPreviewInput(clientId, ctx, store, droidReasoningDefaults, modelIdMode);
         stale = refreshed === null ? "unavailable" : previewIntegration(refreshed.input, request);
         return { ok: false, reason: "conflict", state: "conflict", clientId, message: "the model roster changed while confirming" };
       }
@@ -1145,6 +1146,7 @@ export async function handleIntegrationRoutes(ctx: ManagementContext): Promise<R
       binding.fingerprint,
       boundToggle === null ? null : boundToggle.identity,
       droidDefaults,
+      modelIdMode,
     );
     const result = await runIntegrationMutationFlight(
       requestedClient,

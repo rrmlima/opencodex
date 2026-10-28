@@ -10,7 +10,7 @@
  */
 import { createClineIO } from "./cline-io";
 import { parseClineDocument } from "./cline-document";
-import { ClientPathError, DEFAULT_MODEL_ID_MODE, EXPORT_CLIENTS, opencodeProxyBaseUrl, droidDefaultsFromOwnedRows, type ExportModel, type ManagedContribution, type ModelIdMode, type QualifiedAliasResolver } from "../clients/config-export";
+import { ClientPathError, DEFAULT_MODEL_ID_MODE, MODEL_ID_MODE_CLIENTS, EXPORT_CLIENTS, opencodeProxyBaseUrl, droidDefaultsFromOwnedRows, type ExportModel, type ManagedContribution, type ModelIdMode, type QualifiedAliasResolver } from "../clients/config-export";
 import { qoderLegacyCatalogCollision } from "../clients/config-export/qoder";
 import { qualifiedAliasResolver } from "../server/index/qualified-alias";
 import type { ConfigFormat } from "../clients/config-export";
@@ -513,7 +513,6 @@ export interface IntegrationStateInput {
   resolvedPaths?: ResolvedIntegrationPaths;
 }
 
-const MODEL_ID_MODE_CLIENTS: ReadonlySet<IntegrationClientId> = new Set<IntegrationClientId>(["hermes", "commandcode"]);
 
 export function clientTakesModelIdMode(clientId: IntegrationClientId): boolean {
   return MODEL_ID_MODE_CLIENTS.has(clientId);
